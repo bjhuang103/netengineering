@@ -12,18 +12,11 @@ import java.security.cert.CertificateException;
 import java.util.Stack;
 import java.util.Vector;
 
-public class HttpConnector implements Runnable, Connector, Lifecycle {
+public class HttpConnector implements Runnable, Lifecycle {
 
     // ----------------------------------------------------- Instance Variables
 
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
-
-
-    /**
-     * The <code>Service</code> we are associated with (if any).
-     */
-//    private Service service = null;
-
 
     /**
      * The accept count for this Connector.

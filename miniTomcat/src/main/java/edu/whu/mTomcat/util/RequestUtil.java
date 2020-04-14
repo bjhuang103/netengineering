@@ -369,27 +369,6 @@ public class RequestUtil {
 
 
     /**
-     * Put name value pair in map.
-     *
-     * Put name and value pair in map.  When name already exist, add value
-     * to array of values.
-     */
-    private static void putMapEntry( Map map, String name, String value) {
-        String[] newValues = null;
-        String[] oldValues = (String[]) map.get(name);
-        if (oldValues == null) {
-            newValues = new String[1];
-            newValues[0] = value;
-        } else {
-            newValues = new String[oldValues.length + 1];
-            System.arraycopy(oldValues, 0, newValues, 0, oldValues.length);
-            newValues[oldValues.length] = value;
-        }
-        map.put(name, newValues);
-    }
-
-
-    /**
      * Append request parameters from the specified String to the specified
      * Map.  It is presumed that the specified Map is not accessed from any
      * other thread, so no synchronization is performed.
@@ -423,7 +402,7 @@ public class RequestUtil {
                     case '&':
                         value = new String(data, 0, ox, encoding);
                         if (key != null) {
-                            putMapEntry(map, key, value);
+                            map.put(key,value);
                             key = null;
                         }
                         ox = 0;
@@ -443,10 +422,9 @@ public class RequestUtil {
                         data[ox++] = c;
                 }
             }
-            //The last value does not end in '&'.  So save it now.
             if (key != null) {
                 value = new String(data, 0, ox, encoding);
-                putMapEntry(map, key, value);
+                map.put(key,value);
             }
         }
 

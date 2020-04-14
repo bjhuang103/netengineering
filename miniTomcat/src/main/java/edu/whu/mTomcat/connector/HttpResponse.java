@@ -12,6 +12,8 @@ import java.util.*;
 
 public class HttpResponse implements HttpServletResponse {
 
+  private String sessionid;
+
   // the default buffer size
   private static final int BUFFER_SIZE = 1024;
   HttpRequest request;
@@ -64,8 +66,6 @@ public class HttpResponse implements HttpServletResponse {
    * The HTTP status code associated with this Response.
    */
   protected int status = HttpServletResponse.SC_OK;
-
-
 
   public HttpResponse(OutputStream output) {
     this.output = output;
@@ -564,5 +564,15 @@ public class HttpResponse implements HttpServletResponse {
 
   public Collection<String> getHeaderNames() {
     return null;
+  }
+
+  public String getSessionid(){
+    return sessionid;
+  }
+
+  public void setSeesion(String sessionid){
+    this.sessionid = sessionid;
+    Cookie session = new Cookie("jsessionid",sessionid);
+    addCookie(session);
   }
 }

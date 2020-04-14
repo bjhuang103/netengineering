@@ -13,10 +13,8 @@ public class LifecycleSupport {
      *  of events that we fire
      */
     public LifecycleSupport(Lifecycle lifecycle) {
-
         super();
         this.lifecycle = lifecycle;
-
     }
 
 

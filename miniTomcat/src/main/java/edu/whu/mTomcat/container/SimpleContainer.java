@@ -1,7 +1,6 @@
 package edu.whu.mTomcat.container;
 
 import edu.whu.mTomcat.Container;
-import edu.whu.mTomcat.Request;
 import edu.whu.mTomcat.connector.HttpResponse;
 
 import javax.naming.directory.DirContext;
@@ -91,9 +90,9 @@ public class SimpleContainer implements Container {
         if(servlet != null) {
             servlet.service(request, response);
         }
-        HttpResponse httpResponse = (HttpResponse)response;
-        httpResponse.addCookie(new Cookie("name","yyyyyyy"));
-        ((HttpResponse)response).sendHeaders();
+//        HttpResponse httpResponse = (HttpResponse)response;
+//        httpResponse.addCookie(new Cookie("name","yyyyyyy"));
+//        ((HttpResponse)response).sendHeaders();
 //        PrintWriter writer = response.getWriter();
 //        writer.println("return !!!");
 //        writer.print("\r\n");
@@ -134,9 +133,6 @@ public class SimpleContainer implements Container {
 //        }
     }
 
-    public Container map(Request request, boolean update) {
-        return null;
-    }
 
     public void removeChild(Container child) {
 

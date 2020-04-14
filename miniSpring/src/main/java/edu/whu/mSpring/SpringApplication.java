@@ -24,6 +24,9 @@ public class SpringApplication {
     public static Map<String, Object> handlerMappingController = new  HashMap<>();
 
 
+    public static Map<String, Object> session = new HashMap<>();
+
+
     public void run(Class primarySource){
         System.out.println("asd");
         // IOC容器初始化，自动注入

@@ -173,13 +173,14 @@ public class HttpRequest implements HttpServletRequest {
                     throw new RuntimeException("Content length mismatch");
                 }
 
+                Map body = new HashMap();
                 if( "application/x-www-form-urlencoded".equals(contentType)) {
-                    RequestUtil.parseParameters(results, buf, encoding);
+                    RequestUtil.parseParameters(body, buf, encoding);
                 } else if (contentType.contains("application/json")) {
                     String s = new String(buf);
-                    Map body = (Map)JSON.parse(s);
-                    setBody(body);
+                    body = (Map)JSON.parse(s);
                 }
+                setBody(body);
             } catch (IOException e) {
                 throw new RuntimeException("Content read fail");
             }
@@ -555,7 +556,7 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     public String getRequestedSessionId() {
-        return null;
+        return requestedSessionId;
     }
 
     public String getRequestURI() {

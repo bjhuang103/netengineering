@@ -17,6 +17,5 @@ public class DefaultServerSocketFactory implements ServerSocketFactory {
 
     public ServerSocket createSocket (int port, int backlog, InetAddress ifAddress) throws IOException {
         return (new ServerSocket(port, backlog, ifAddress));
-
     }
 }

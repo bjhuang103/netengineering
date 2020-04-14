@@ -175,14 +175,6 @@ public final class HttpHeader {
 
 
     /**
-     * Test if the value of the header includes the given string.
-     */
-    public boolean valueIncludes(String str) {
-        return valueIncludes(str.toCharArray(), str.length());
-    }
-
-
-    /**
      * Returns the index of a character in the value.
      */
     public int valueIndexOf(char c, int start) {
@@ -193,33 +185,10 @@ public final class HttpHeader {
         return -1;
     }
 
-
-    /**
-     * Test if the name of the header is equal to the given header.
-     * All the characters in the name must already be lower case.
-     */
     public boolean equals(HttpHeader header) {
         return (equals(header.name, header.nameEnd));
     }
 
-
-    /**
-     * Test if the name and value of the header is equal to the given header.
-     * All the characters in the name must already be lower case.
-     */
-    public boolean headerEquals(HttpHeader header) {
-        return (equals(header.name, header.nameEnd))
-            && (valueEquals(header.value, header.valueEnd));
-    }
-
-
-    // --------------------------------------------------------- Object Methods
-
-
-    /**
-     * Return hash code. The hash code of the HttpHeader object is the same
-     * as returned by new String(name, 0, nameEnd).hashCode().
-     */
     public int hashCode() {
         int h = hashCode;
         if (h == 0) {

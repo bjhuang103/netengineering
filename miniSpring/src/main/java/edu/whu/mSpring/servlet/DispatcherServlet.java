@@ -25,27 +25,6 @@ import java.net.URL;
 import java.util.*;
 
 public class DispatcherServlet extends HttpServlet {
-
-    private Properties properties = new Properties();
-
-    private List<String> classNames = new ArrayList<>();
-
-//    private Map<String, Object> ioc = new HashMap<>();
-//
-//    private Map<String, Method> handlerMapping = new  HashMap<>();
-//
-//    private Map<String, Object> controllerMap  =new HashMap<>();
-
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        //1.加载配置文件
-        doLoadConfig(config.getInitParameter("contextConfigLocation"));
-
-    }
-
-
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         this.doPost(req,resp);
@@ -92,6 +71,7 @@ public class DispatcherServlet extends HttpServlet {
 //            resp.getWriter().write("404 NOT FOUND!");
             resp.sendError(404);
             resp.getWriter().print("\r\n");
+            resp.getWriter().flush();
             return;
         }
 
@@ -148,27 +128,5 @@ public class DispatcherServlet extends HttpServlet {
         writer.flush();
     }
 
-
-
-    private void  doLoadConfig(String location){
-        //把web.xml中的contextConfigLocation对应value值的文件加载到留里面
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(location);
-        try {
-            //用Properties文件加载文件里的内容
-            properties.load(resourceAsStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            //关流
-            if(null!=resourceAsStream){
-                try {
-                    resourceAsStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
 
 }

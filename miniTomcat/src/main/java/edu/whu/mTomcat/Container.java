@@ -206,34 +206,4 @@ public interface Container {
      */
     public void invoke(ServletRequest request, ServletResponse response)
             throws IOException, ServletException;
-
-
-    /**
-     * Return the child Container that should be used to process this Request,
-     * based upon its characteristics.  If no such child Container can be
-     * identified, return <code>null</code> instead.
-     *
-     * @param request Request being processed
-     * @param update Update the Request to reflect the mapping selection?
-     */
-    public Container map(Request request, boolean update);
-
-
-    /**
-     * Remove an existing child Container from association with this parent
-     * Container.
-     *
-     * @param child Existing child Container to be removed
-     */
-    public void removeChild(Container child);
-
-
-    /**
-     * Remove a property change listener from this component.
-     *
-     * @param listener The listener to remove
-     */
-    public void removePropertyChangeListener(PropertyChangeListener listener);
-
-
 }
