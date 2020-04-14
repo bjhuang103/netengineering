@@ -10,25 +10,15 @@ package edu.whu.mTomcat.connector;
 
 public final class HttpHeader {
 
-
-    // -------------------------------------------------------------- Constants
-
-
     public static final int INITIAL_NAME_SIZE = 32;
     public static final int INITIAL_VALUE_SIZE = 64;
     public static final int MAX_NAME_SIZE = 128;
     public static final int MAX_VALUE_SIZE = 4096;
 
 
-    // ----------------------------------------------------------- Constructors
-
-
     public HttpHeader() {
-
         this(new char[INITIAL_NAME_SIZE], 0, new char[INITIAL_VALUE_SIZE], 0);
-
     }
-
 
     public HttpHeader(char[] name, int nameEnd, char[] value, int valueEnd) {
 
@@ -39,14 +29,11 @@ public final class HttpHeader {
 
     }
 
-
     public HttpHeader(String name, String value) {
-
         this.name = name.toLowerCase().toCharArray();
         this.nameEnd = name.length();
         this.value = value.toCharArray();
         this.valueEnd = value.length();
-
     }
 
 
@@ -60,38 +47,18 @@ public final class HttpHeader {
     protected int hashCode = 0;
 
 
-    // ------------------------------------------------------------- Properties
-
-
-    // --------------------------------------------------------- Public Methods
-
-
-    /**
-     * Release all object references, and initialize instance variables, in
-     * preparation for reuse of this object.
-     */
     public void recycle() {
-
         nameEnd = 0;
         valueEnd = 0;
         hashCode = 0;
-
     }
 
 
-    /**
-     * Test if the name of the header is equal to the given char array.
-     * All the characters must already be lower case.
-     */
+
     public boolean equals(char[] buf) {
         return equals(buf, buf.length);
     }
 
-
-    /**
-     * Test if the name of the header is equal to the given char array.
-     * All the characters must already be lower case.
-     */
     public boolean equals(char[] buf, int end) {
         if (end != nameEnd)
             return false;
@@ -102,27 +69,16 @@ public final class HttpHeader {
         return true;
     }
 
-
-    /**
-     * Test if the name of the header is equal to the given string.
-     * The String given must be made of lower case characters.
-     */
     public boolean equals(String str) {
         return equals(str.toCharArray(), str.length());
     }
 
 
-    /**
-     * Test if the value of the header is equal to the given char array.
-     */
+
     public boolean valueEquals(char[] buf) {
         return valueEquals(buf, buf.length);
     }
 
-
-    /**
-     * Test if the value of the header is equal to the given char array.
-     */
     public boolean valueEquals(char[] buf, int end) {
         if (end != valueEnd)
             return false;
@@ -133,26 +89,16 @@ public final class HttpHeader {
         return true;
     }
 
-
-    /**
-     * Test if the value of the header is equal to the given string.
-     */
     public boolean valueEquals(String str) {
         return valueEquals(str.toCharArray(), str.length());
     }
 
 
-    /**
-     * Test if the value of the header includes the given char array.
-     */
+
     public boolean valueIncludes(char[] buf) {
         return valueIncludes(buf, buf.length);
     }
 
-
-    /**
-     * Test if the value of the header includes the given char array.
-     */
     public boolean valueIncludes(char[] buf, int end) {
         char firstChar = buf[0];
         int pos = 0;
@@ -174,9 +120,7 @@ public final class HttpHeader {
     }
 
 
-    /**
-     * Returns the index of a character in the value.
-     */
+
     public int valueIndexOf(char c, int start) {
         for (int i=start; i<valueEnd; i++) {
             if (value[i] == c)

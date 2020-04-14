@@ -5,17 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/**
- * Extended implementation of <strong>HashMap</strong> that includes a
- * <code>locked</code> property.  This class can be used to safely expose
- * Catalina internal parameter map objects to user classes without having
- * to clone them in order to avoid modifications.  When first created, a
- * <code>ParmaeterMap</code> instance is not locked.
- *
- * @author Craig R. McClanahan
- * @version $Revision: 1.2 $ $Date: 2001/07/22 20:25:13 $
- */
-
 public final class ParameterMap extends HashMap {
 
 

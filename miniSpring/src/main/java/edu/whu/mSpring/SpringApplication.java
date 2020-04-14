@@ -6,7 +6,6 @@ import edu.whu.mTomcat.connector.HttpConnector;
 import edu.whu.mTomcat.container.SimpleContainer;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -77,7 +76,11 @@ public class SpringApplication {
                 Class<?> clazz =Class.forName(className);
                 if(clazz.isAnnotationPresent(Component.class)){
                     Component annotation = clazz.getAnnotation(Component.class);
-                    iocContainer.put(annotation.name(),clazz.newInstance());
+                    if(!annotation.name().equals("")) {
+                        iocContainer.put(annotation.name(), clazz.newInstance());
+                    } else {
+                        iocContainer.put(className,clazz.newInstance());
+                    }
                 }else{
                     continue;
                 }
@@ -99,7 +102,12 @@ public class SpringApplication {
                     field.setAccessible(true);
                     try {
                         String s = annotation.name();
-                        field.set(instance,iocContainer.get(annotation.name()));
+                        Object object = iocContainer.get(annotation.name());
+                        if(object == null){
+                            String ss = field.getType().getName();
+                            object = iocContainer.get(field.getType().getName());
+                        }
+                        field.set(instance,object);
                     } catch (IllegalAccessException e) {
                         System.out.println("autowired fail");
                         e.printStackTrace();
@@ -148,8 +156,12 @@ public class SpringApplication {
                     handlerMappingMethod.put(url, requestMethodMethodMap);
 
                     // 填充实体映射
-                    handlerMappingController.put(url, iocContainer.get(clazz.getAnnotation(Component.class).name()));
-
+                    Component component = clazz.getAnnotation(Component.class);
+                    if(component.name().equals("")){
+                        handlerMappingController.put(url,iocContainer.get(clazz.getName()));
+                    } else {
+                        handlerMappingController.put(url, iocContainer.get(clazz.getAnnotation(Component.class).name()));
+                    }
                     System.out.println(url + "," + method);
                 }
 

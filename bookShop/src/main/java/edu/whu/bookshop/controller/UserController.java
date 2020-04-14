@@ -7,17 +7,16 @@ import edu.whu.mTomcat.connector.HttpResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/user")
-@Component(name = "userController")
+@Component
 public class UserController {
 
-    @Autowired(name = "bookController")
+    @Autowired
     BookController bookController;
 
     @RequestMapping(value = "/info",method = {RequestMethod.GET})
@@ -31,12 +30,10 @@ public class UserController {
     }
 
 
-    private String name = "user1";
-    private String psw = "psw1";
+    private final String name = "user1";
+    private final String psw = "psw1";
     @RequestMapping(value = "/login",method = {RequestMethod.POST})
     public String login(HttpServletResponse response, @RequestBody Map data){
-        String name1 = (String)data.get("name");
-        String name2 = (String)data.get("psw");
         if(data.get("name") != null && data.get("name").equals(name)
                 && data.get("psw") != null && data.get("psw").equals(psw)){
             HttpResponse httpResponse = (HttpResponse) response;
@@ -53,7 +50,7 @@ public class UserController {
     public Object hasLogin(HttpServletRequest request){
         HttpRequest httpRequest = (HttpRequest) request;
         String sessionid = httpRequest.getRequestedSessionId();
-        if(SessionHelper.getSession(sessionid) != null){
+        if(sessionid != null && SessionHelper.getSession(sessionid) != null){
             return SessionHelper.getSession(sessionid);
         } else {
             return "not login!";
