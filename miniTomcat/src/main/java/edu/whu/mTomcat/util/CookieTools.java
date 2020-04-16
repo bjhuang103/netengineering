@@ -1,8 +1,6 @@
 package edu.whu.mTomcat.util;
 
 import javax.servlet.http.Cookie;
-import java.text.FieldPosition;
-import java.util.Date;
 
 public class CookieTools {
     /** Return the header name to set the cookie, based on cookie
@@ -66,8 +64,8 @@ public class CookieTools {
 
         // Max-Age=secs/Discard ... or use old "Expires" format
         if (cookie.getMaxAge() >= 0) {
-            if (version == 0) {
-                buf.append (";Expires=");
+//            if (version == 0) {
+//                buf.append (";Expires=");
 //                if (cookie.getMaxAge() == 0)
 //                    DateTool.oldCookieFormat.format(new Date(10000), buf,
 //                            new FieldPosition(0));
@@ -76,10 +74,10 @@ public class CookieTools {
 //                            (new Date( System.currentTimeMillis() +
 //                                            cookie.getMaxAge() *1000L), buf,
 //                                    new FieldPosition(0));
-            } else {
+//            } else {
                 buf.append (";Max-Age=");
                 buf.append (cookie.getMaxAge());
-            }
+//            }
         } else if (version == 1)
             buf.append (";Discard");
 

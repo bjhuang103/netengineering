@@ -14,4 +14,8 @@ public class SessionHelper {
         return sessions.get(key);
     }
 
+    public static void deleteSession(String key){
+        sessions.remove(key);
+    }
+
 }

@@ -1,16 +1,14 @@
 package edu.whu.mTomcat.connector;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import edu.whu.mTomcat.*;
 import edu.whu.mTomcat.util.RequestUtil;
-import jdk.nashorn.internal.parser.JSONParser;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,9 +35,6 @@ public class HttpRequest implements HttpServletRequest {
         input.close();
     }
 
-    /**
-     * The request attributes for this request.
-     */
     protected HashMap attributes = new HashMap();
     /**
      * The authorization credentials sent with this Request.
@@ -148,39 +143,187 @@ public class HttpRequest implements HttpServletRequest {
         String contentType = getContentType();
         if (contentType == null)
             contentType = "";
-        int semicolon = contentType.indexOf(';');
-        if (semicolon >= 0) {
-            contentType = contentType.substring(0, semicolon).trim();
-        }
-        else {
-            contentType = contentType.trim();
-        }
         if ("POST".equals(getMethod()) && (getContentLength() > 0)){
             try {
-                int max = getContentLength();
-                int len = 0;
-                byte buf[] = new byte[getContentLength()];
-                ServletInputStream is = getInputStream();
-                while (len < max) {
-                    int next = is.read(buf, len, max - len);
-                    if (next < 0) {
-                        break;
+                if(false){
+//                if(contentType.startsWith("multipart/form-data")){  // 处理文件上传
+                    String boundary = contentType.substring(contentType.indexOf("boundary") +
+                            "boundary=".length());
+                    BufferedReader br = new BufferedReader(new InputStreamReader(input));
+                    String str = null;
+                    while((str = br.readLine()) != null){
+                        //解析结束的标记
+                        do {
+                            //读取boundary中的内容
+                            //读取Content-Disposition
+                            str = br.readLine();
+                            //说明是文件上传
+                            if (str.indexOf("Content-Disposition:") >= 0 && str.indexOf("filename") > 0) {
+                                str = str.substring("Content-Disposition:".length());
+                                String[] strs = str.split(";");
+                                String fileName = strs[strs.length - 1].replace("\"", "").split("=")[1];
+                                System.out.println("fileName = " + fileName);
+                                //这一行是Content-Type
+                                br.readLine();
+                                //这一行是换行
+                                br.readLine();
+                                //正式去读文件的内容
+                                StringBuilder sb = new StringBuilder();
+                                BufferedWriter bw = null;
+                                try {
+                                    bw = new BufferedWriter(new OutputStreamWriter(new
+                                            FileOutputStream("/media/hbj/G/OtherCodes" +
+                                            File.separator + fileName), "UTF-8"));
+                                    while (true) {
+                                        str = br.readLine();
+                                        if (str.startsWith("--" + boundary)) {
+                                            break;
+                                        }
+                                        sb.append(str).append("\n");
+//                                        bw.write(str);
+//                                        bw.newLine();
+                                    }
+                                    BufferedReader br2 = new BufferedReader(new InputStreamReader(
+                                            new ByteArrayInputStream(sb.toString().getBytes(Charset.forName("utf8"))), Charset.forName("utf8")));
+                                    String tmp = null;
+                                    while((tmp = br2.readLine()) != null){
+                                        bw.write(tmp);
+                                        bw.newLine();
+                                    }
+                                    bw.flush();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                } finally {
+                                    if (bw != null) {
+                                        bw.close();
+                                    }
+                                }
+                            }
+                            if (str.indexOf("Content-Disposition:") >= 0) {
+                                str = str.substring("Content-Disposition:".length());
+                                String[] strs = str.split(";");
+                                String name = strs[strs.length - 1].replace("\"", "").split("=")[1];
+                                br.readLine();
+                                StringBuilder stringBuilder = new StringBuilder();
+                                while (true) {
+                                    str = br.readLine();
+                                    if (str.startsWith("--" + boundary)) {
+                                        break;
+                                    }
+                                    stringBuilder.append(str);
+                                }
+                                parameters.put(name, stringBuilder.toString());
+                            }
+                        } while (("--" + boundary).equals(str));
+                        //解析结束
+                        if (str.equals("--" + boundary + "--")) {
+                            break;
+                        }
                     }
-                    len += next;
-                }
-                is.close();
-                if (len < max) {
-                    throw new RuntimeException("Content length mismatch");
-                }
+                } else {
+                    int max = getContentLength();
+                    int len = 0;
+                    byte buf[] = new byte[getContentLength()];
+                    ServletInputStream is = getInputStream();
+                    while (len < max) {
+                        int next = is.read(buf, len, max - len);
+                        if (next < 0) {
+                            break;
+                        }
+                        len += next;
+                    }
+                    is.close();
+                    if (len < max) {
+                        throw new RuntimeException("Content length mismatch");
+                    }
 
-                Map body = new HashMap();
-                if( "application/x-www-form-urlencoded".equals(contentType)) {
-                    RequestUtil.parseParameters(body, buf, encoding);
-                } else if (contentType.contains("application/json")) {
-                    String s = new String(buf);
-                    body = (Map)JSON.parse(s);
+                    Map body = new HashMap();
+                    if ("application/x-www-form-urlencoded".equals(contentType)) {
+                        RequestUtil.parseParameters(body, buf, encoding);
+                    } else if (contentType.contains("application/json")) {
+                        String s = new String(buf);
+                        body = (Map) JSON.parse(s);
+                    } else if(contentType.startsWith("multipart/form-data")){
+                        BufferedReader br = new BufferedReader(new InputStreamReader(
+                                new ByteArrayInputStream(buf), Charset.forName("utf8")));
+                        String boundary = contentType.substring(contentType.indexOf("boundary") +
+                                "boundary=".length());
+//                        BufferedReader br = new BufferedReader(new InputStreamReader(input));
+                        String str = null;
+                        while((str = br.readLine()) != null){
+                            //解析结束的标记
+                            do {
+                                //读取boundary中的内容
+                                //读取Content-Disposition
+                                str = br.readLine();
+                                //说明是文件上传
+                                if (str.indexOf("Content-Disposition:") >= 0 && str.indexOf("filename") > 0) {
+                                    str = str.substring("Content-Disposition:".length());
+                                    String[] strs = str.split(";");
+                                    String fileName = strs[strs.length - 1].replace("\"", "").split("=")[1];
+                                    System.out.println("fileName = " + fileName);
+                                    //这一行是Content-Type
+                                    str = br.readLine();
+                                    System.out.println(str);
+                                    //这一行是换行
+                                    str = br.readLine();
+                                    System.out.println(str);
+                                    //正式去读文件的内容
+                                    StringBuilder sb = new StringBuilder();
+                                    BufferedWriter bw = null;
+                                    try {
+                                        bw = new BufferedWriter(new OutputStreamWriter(new
+                                                FileOutputStream("/media/hbj/G/OtherCodes" +
+                                                File.separator + fileName), "UTF-8"));
+                                        while (true) {
+                                            str = br.readLine();
+                                            if (str.startsWith("--" + boundary)) {
+                                                break;
+                                            }
+                                            sb.append(str).append("\n");
+                                        bw.write(str);
+                                        bw.newLine();
+                                        }
+                                        BufferedReader br2 = new BufferedReader(new InputStreamReader(
+                                                new ByteArrayInputStream(sb.toString().getBytes(Charset.forName("utf8"))), Charset.forName("utf8")));
+                                        String tmp = null;
+                                        while((tmp = br2.readLine()) != null){
+//                                            bw.write(tmp);
+//                                            bw.newLine();
+                                        }
+                                        bw.flush();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    } finally {
+                                        if (bw != null) {
+                                            bw.close();
+                                        }
+                                    }
+                                }
+                                if (str.indexOf("Content-Disposition:") >= 0) {
+                                    str = str.substring("Content-Disposition:".length());
+                                    String[] strs = str.split(";");
+                                    String name = strs[strs.length - 1].replace("\"", "").split("=")[1];
+                                    br.readLine();
+                                    StringBuilder stringBuilder = new StringBuilder();
+                                    while (true) {
+                                        str = br.readLine();
+                                        if (str.startsWith("--" + boundary)) {
+                                            break;
+                                        }
+                                        stringBuilder.append(str);
+                                    }
+                                    parameters.put(name, stringBuilder.toString());
+                                }
+                            } while (("--" + boundary).equals(str));
+                            //解析结束
+                            if (str.equals("--" + boundary + "--")) {
+                                break;
+                            }
+                        }
+                    }
+                    setBody(body);
                 }
-                setBody(body);
             } catch (IOException e) {
                 throw new RuntimeException("Content read fail");
             }
@@ -422,11 +565,8 @@ public class HttpRequest implements HttpServletRequest {
 
     public String getParameter(String name) {
         parseParameters();
-        String values[] = (String[]) parameters.get(name);
-        if (values != null)
-            return (values[0]);
-        else
-            return (null);
+        String values = (String)parameters.get(name);
+        return values;
     }
 
     public Map getParameterMap() {
@@ -435,18 +575,11 @@ public class HttpRequest implements HttpServletRequest {
     }
 
     public Enumeration getParameterNames() {
-//        parseParameters();
-//        return (new Enumerator(parameters.keySet()));
         return null;
     }
 
     public String[] getParameterValues(String name) {
-        parseParameters();
-        String values[] = (String[]) parameters.get(name);
-        if (values != null)
-            return (values);
-        else
-            return null;
+        return null;
     }
 
     public String getPathInfo() {

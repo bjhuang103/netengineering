@@ -369,7 +369,7 @@ public class HttpProcessor implements Lifecycle,Runnable {
                 }
                 else {
                     throw new ServletException
-                            (("httpProcessor.parseHeaders.colon"));
+                            (("httpProcessor.parseHeaders.colFon"));
                 }
             }
 

@@ -3,26 +3,22 @@ package edu.whu.mSpring.servlet;
 
 import com.alibaba.fastjson.JSON;
 import edu.whu.mSpring.SpringApplication;
-import edu.whu.mSpring.annotation.*;
+import edu.whu.mSpring.annotation.PathParam;
+import edu.whu.mSpring.annotation.RequestBody;
+import edu.whu.mSpring.annotation.RequestMethod;
+import edu.whu.mSpring.interceptor.HandlerInterceptor;
 import edu.whu.mTomcat.connector.HttpRequest;
 import edu.whu.mTomcat.connector.HttpResponse;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.*;
+import java.util.Map;
 
 public class DispatcherServlet extends HttpServlet {
     @Override
@@ -36,6 +32,7 @@ public class DispatcherServlet extends HttpServlet {
             //处理请求
             doDispatch(req,resp);
         } catch (Exception e) {
+            e.printStackTrace();
             resp.getWriter().write("500!! Server Exception");
         }
 
@@ -68,7 +65,6 @@ public class DispatcherServlet extends HttpServlet {
         if(!SpringApplication.handlerMappingMethod.containsKey(url)
                 || !SpringApplication.handlerMappingMethod.get(url).containsKey(convertMethod(req.getMethod()))){
             // TODO send error msg
-//            resp.getWriter().write("404 NOT FOUND!");
             resp.sendError(404);
             resp.getWriter().print("\r\n");
             resp.getWriter().flush();
@@ -110,8 +106,21 @@ public class DispatcherServlet extends HttpServlet {
         Object result = null;
         //利用反射机制来调用
         try {
-            result = method.invoke(SpringApplication.handlerMappingController.get(url), paramValues);//obj是method所对应的实例 在ioc容器中
+            // 拦截器
+            boolean flag = true;
+            for(HandlerInterceptor interceptor : SpringApplication.interceptors){
+                if(!interceptor.preHandle(req,resp)){
+                    flag = false;
+                }
+            }
+            if(flag) {
+                result = method.invoke(SpringApplication.handlerMappingController.get(url), paramValues);//obj是method所对应的实例 在ioc容器中
+            }
+            for(HandlerInterceptor interceptor : SpringApplication.interceptors){
+                interceptor.afterCompletion(req,resp);
+            }
         } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             e.printStackTrace();
         }
 

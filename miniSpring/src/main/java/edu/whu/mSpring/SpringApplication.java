@@ -1,6 +1,7 @@
 package edu.whu.mSpring;
 
 import edu.whu.mSpring.annotation.*;
+import edu.whu.mSpring.interceptor.HandlerInterceptor;
 import edu.whu.mSpring.servlet.DispatcherServlet;
 import edu.whu.mTomcat.connector.HttpConnector;
 import edu.whu.mTomcat.container.SimpleContainer;
@@ -22,9 +23,7 @@ public class SpringApplication {
 
     public static Map<String, Object> handlerMappingController = new  HashMap<>();
 
-
-    public static Map<String, Object> session = new HashMap<>();
-
+    public static List<HandlerInterceptor> interceptors = new ArrayList<>();
 
     public void run(Class primarySource){
         System.out.println("asd");
@@ -67,6 +66,7 @@ public class SpringApplication {
         }
     }
 
+
     private void doInstance() {
         if (classNames.isEmpty()) {
             return;
@@ -74,6 +74,7 @@ public class SpringApplication {
         for (String className : classNames) {
             try {
                 Class<?> clazz =Class.forName(className);
+                // 注入Component
                 if(clazz.isAnnotationPresent(Component.class)){
                     Component annotation = clazz.getAnnotation(Component.class);
                     if(!annotation.name().equals("")) {
@@ -81,7 +82,22 @@ public class SpringApplication {
                     } else {
                         iocContainer.put(className,clazz.newInstance());
                     }
-                }else{
+                }
+                // 注入Interceptor
+                else if(clazz.isAnnotationPresent(Interceptor.class)){
+                    Class<?>[] interfaces = clazz.getInterfaces();
+                    // 必须实现HandlerInterceptor接口
+                    boolean flag = false;
+                    for(Class i : interfaces){
+                        if(i == HandlerInterceptor.class){
+                            flag = true;
+                        }
+                    }
+                    if(flag){
+                        interceptors.add((HandlerInterceptor) clazz.newInstance());
+                    }
+                }
+                else{
                     continue;
                 }
             } catch (Exception e) {

@@ -575,4 +575,11 @@ public class HttpResponse implements HttpServletResponse {
     Cookie session = new Cookie("jsessionid",sessionid);
     addCookie(session);
   }
+
+  public void setSeesion(String sessionid,int expirytime){
+    this.sessionid = sessionid;
+    Cookie session = new Cookie("jsessionid",sessionid);
+    session.setMaxAge(expirytime);
+    addCookie(session);
+  }
 }

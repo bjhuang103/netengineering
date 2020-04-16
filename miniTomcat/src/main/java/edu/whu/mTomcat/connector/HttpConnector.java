@@ -7,8 +7,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.AccessControlException;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -246,14 +245,13 @@ public class HttpConnector implements Runnable, Lifecycle {
             // Accept the next incoming connection from the server socket
             Socket socket = null;
             try {
-                //                if (debug >= 3)
-                //                    log("run: Waiting on serverSocket.accept()");
                 socket = serverSocket.accept();
-                //                if (debug >= 3)
-                //                    log("run: Returned from serverSocket.accept()");
                 if (connectionTimeout > 0)
                     socket.setSoTimeout(connectionTimeout);
                 socket.setTcpNoDelay(tcpNoDelay);
+                socket.setSendBufferSize(262144);
+                socket.setReceiveBufferSize(262144);
+                log("accepted");
             } catch (AccessControlException ace) {
                 log("socket accept security exception", ace);
                 continue;

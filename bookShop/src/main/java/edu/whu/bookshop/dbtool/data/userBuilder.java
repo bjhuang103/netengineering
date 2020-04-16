@@ -49,4 +49,10 @@ public class userBuilder {
         else
             return null;
     }
+
+//    public user build(Map<String,String> data){
+//        setAddress(data.get("address")).setAccount(data.get("account")).setCity(data.get("city"))
+//                .setInfo(data.get("info")).setMoney(Float.parseFloat(data.get("money"))).setName(data.get("name"))
+//                .setPassword(data.get("password")).setProvince(data.get())
+//    }
 }
